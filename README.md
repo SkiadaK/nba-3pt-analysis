@@ -1,4 +1,5 @@
 # 🏀 NBA 3PT Analysis — Κερδίζουν περισσότερους αγώνες οι ομάδες που σουτάρουν περισσότερα τρίποντα;
+![Python](https://img.shields.io/badge/Python-3.14-blue) ![pandas](https://img.shields.io/badge/pandas-live--data-150458) ![License](https://img.shields.io/badge/License-MIT-green)
 
 Στατιστική ανάλυση της σχέσης μεταξύ στρατηγικής τριπόντων και αγωνιστικής επιτυχίας στο NBA, με **ζωντανό data pipeline** που τραβάει τρέχοντα στατιστικά απευθείας από το επίσημο API του NBA.
 
