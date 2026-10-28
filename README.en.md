@@ -21,7 +21,7 @@ Started as a coursework project for a Statistics course (University of Crete) an
 | Question | Result |
 |---|---|
 | 1. Key performance drivers | Backward elimination on the live data narrows it down to **ORtg**, **DRtg**, and **TS%** (p < 0.05, R² = 0.95) |
-| 2. Home vs Away | Statistically significant difference (t-test, p = 0.023) — slightly better 3P% at home (36.3% vs 35.5%) |
+| 2. Home vs Away | Statistically significant difference (t-test, p = 0.023) — slightly better 3P% at home (36.2% vs 35.5%) |
 | 3. Opponent strength | Statistically significant difference (ANOVA, p = 0.038) — better 3P% against weaker opponents |
 
 ![ORtg & DRtg vs W/L%](q1_ortg_drtg_vs_wl.png)
@@ -30,18 +30,25 @@ Started as a coursework project for a Statistics course (University of Crete) an
 
 ## Project Structure
 
-fetch_nba_data.py       # Pulls season-level team stats (ORtg, DRtg, Pace, 3PAr, 3P%, TS%)
-analyze_regression.py   # Live regression + backward elimination for Question 1
-analyze_game_level.py   # Pulls per-game data and runs Questions 2 & 3
+```
+fetch_nba_data.py        # Pulls season-level team stats (ORtg, DRtg, Pace, 3PAr, 3P%, TS%)
+analyze_regression.py    # Live regression + backward elimination for Question 1
+analyze_game_level.py    # Pulls per-game data and runs Questions 2 & 3
+make_plots.py            # Builds the three charts (q1_*.png, q2_*.png, q3_*.png)
 NBAstats_live.csv        # Output of fetch_nba_data.py
 NBA_gamelevel_live.csv   # Output of analyze_game_level.py
+```
 
 ## How to run
-pip install nba_api pandas scipy statsmodels
+
+```bash
+pip install nba_api pandas scipy statsmodels matplotlib
 
 python fetch_nba_data.py        # Run this first
 python analyze_regression.py    # Question 1
 python analyze_game_level.py    # Questions 2 & 3
+python make_plots.py            # Charts
+```
 
 The current NBA season is calculated automatically based on today's date — no manual configuration needed.
 
@@ -58,9 +65,12 @@ Official NBA stats API (via [`nba_api`](https://github.com/swar/nba_api)), live,
 
 ## Tech Stack
 
-Python, pandas, scipy, nba_api
+Python, pandas, scipy, statsmodels, matplotlib, nba_api
 
 ---
+
 The original statistical analysis (coursework) was carried out jointly with Christos Ieronymakis. The live data pipeline, the extension to game-level analysis, and the correction of Questions 2-3 were developed independently by Skiada Katholiki.
+
 ---
+
 *Skiada Katholiki*
