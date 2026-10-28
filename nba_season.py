@@ -30,7 +30,7 @@ def current_nba_season() -> str:
 def _season_type(value: str) -> str:
     if not re.fullmatch(r"\d{4}-\d{2}", value):
         raise argparse.ArgumentTypeError(
-            f"'{value}' δεν είναι έγκυρη σεζόν. Γράψε τη π.χ. ως 2025-26."
+            f"'{value}' δεν είναι έγκυρη σεζόν. Γράψε την π.χ. ως 2025-26."
         )
     return value
 

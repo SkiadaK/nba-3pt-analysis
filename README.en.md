@@ -13,7 +13,7 @@ Started as a coursework project for a Statistics course (University of Crete) an
 ## Research Questions
 
 1. **Which factors most affect a team's performance?** (multiple regression, W/L% ~ ORtg, DRtg, Pace, TS%, 3PAr, 3P%)
-2. **Do teams shoot 3-pointers differently at Home vs Away?** (t-test, game level)
+2. **Does teams' 3P% differ between home and away games?** (t-test, game level)
 3. **Does 3P% vary depending on opponent strength?** (ANOVA, game level)
 
 ## Findings
@@ -22,7 +22,7 @@ The results below are for the **2025-26 season** (full regular season). Reproduc
 
 | Question | Result |
 |---|---|
-| 1. Key performance drivers | Backward elimination on the live data narrows it down to **ORtg**, **DRtg**, and **TS%** (p < 0.05, R² = 0.95) |
+| 1. Key performance drivers | Backward elimination narrows it down to **ORtg**, **DRtg**, and **TS%** (p < 0.05, R² = 0.95) |
 | 2. Home vs Away | Statistically significant difference (t-test, p = 0.023) — slightly better 3P% at home (36.2% vs 35.5%) |
 | 3. Opponent strength | Statistically significant difference (ANOVA, p = 0.038) — better 3P% against weaker opponents |
 
@@ -63,10 +63,10 @@ The `analyze_*.py` scripts read the season from the CSV, so they automatically r
 
 ## Methodological Notes & Limitations
 
-- The original coursework examined Questions 2 and 3 at the **season** level (30 teams), using season-level 3P% and W/L% as a proxy. This version examines them correctly at the **game** level (2,400+ observations), answering the question as originally posed more precisely.
+- The original coursework examined Questions 2 and 3 at the **season** level (30 teams), using season-level 3P% and W/L% as a proxy. This version examines them correctly at the **game** level (2,400+ observations), which answers the question exactly as it was originally posed.
 - The "opponent strength" categorization (Question 3) is based on the **final** season W/L% — meaning we know in hindsight which teams were strong, not their record at the time of the specific game. An acceptable simplification, but worth noting as a limitation.
 - The **Age** (average roster age) and **SOS** (Strength of Schedule) variables from the original coursework were intentionally left out of the live pipeline: Age did not survive backward elimination in the original model (so removing it doesn't affect the conclusions), and SOS is not available through the official NBA API.
-- The final model for Question 1 shows mild multicollinearity between ORtg and TS% (expected, since TS% contributes to the ORtg calculation) — the results are valid, but interpreting the individual coefficients should be done with care.
+- The final model for Question 1 shows mild multicollinearity between ORtg and TS% (expected, since TS% contributes to the ORtg calculation) — the results are valid, but the individual coefficients should be interpreted with care.
 
 ## Data
 
@@ -78,8 +78,8 @@ Python, pandas, scipy, statsmodels, matplotlib, nba_api
 
 ---
 
-The original statistical analysis (coursework) was carried out jointly with Christos Ieronymakis. The live data pipeline, the extension to game-level analysis, and the correction of Questions 2-3 were developed independently by Skiada Katholiki.
+The original statistical analysis (coursework) was carried out by Katholiki Skiada together with Christos Ieronymakis. The live data pipeline, the extension to game-level analysis, and the correction of Questions 2-3 were developed independently by Katholiki Skiada.
 
 ---
 
-*Skiada Katholiki*
+*Katholiki Skiada*
