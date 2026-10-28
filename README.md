@@ -37,7 +37,7 @@ fetch_nba_data.py        # Τραβάει season-level στατιστικά ομ
 analyze_regression.py    # Live regression + backward elimination για το Ερώτημα 1
 analyze_game_level.py    # Τραβάει per-game δεδομένα και τρέχει τα Ερωτήματα 2 & 3
 nba_season.py            # Κοινή λογική σεζόν (--season, προειδοποίηση για λίγους αγώνες)
-make_plots.py            # Φτιάχνει τα τρία γραφήματα (q1_*.png, q2_*.png, q3_*.png)
+make_plots.py            # Φτιάχνει τα τρία γραφήματα στα ελληνικά και στα αγγλικά (*_en.png)
 NBAstats_live.csv        # Output του fetch_nba_data.py
 NBA_gamelevel_live.csv   # Output του analyze_game_level.py
 ```

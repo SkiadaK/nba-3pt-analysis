@@ -37,7 +37,7 @@ fetch_nba_data.py        # Pulls season-level team stats (ORtg, DRtg, Pace, 3PAr
 analyze_regression.py    # Live regression + backward elimination for Question 1
 analyze_game_level.py    # Pulls per-game data and runs Questions 2 & 3
 nba_season.py            # Shared season logic (--season, warning when too few games)
-make_plots.py            # Builds the three charts (q1_*.png, q2_*.png, q3_*.png)
+make_plots.py            # Builds the three charts in Greek and in English (*_en.png)
 NBAstats_live.csv        # Output of fetch_nba_data.py
 NBA_gamelevel_live.csv   # Output of analyze_game_level.py
 ```

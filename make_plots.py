@@ -1,10 +1,11 @@
 """
 make_plots.py
 
-Φτιάχνει τα τρία γραφήματα του README από τα CSV που παράγουν τα άλλα scripts:
-  - q1_ortg_drtg_vs_wl.png          (Ερώτημα 1, από το NBAstats_live.csv)
-  - q2_home_away_3pct.png           (Ερώτημα 2, από το NBA_gamelevel_live.csv)
-  - q3_opponent_strength_3pct.png   (Ερώτημα 3, από το NBA_gamelevel_live.csv)
+Φτιάχνει τα τρία γραφήματα του README από τα CSV που παράγουν τα άλλα scripts,
+σε δύο γλώσσες: ελληνικά (για το README.md) και αγγλικά (για το README.en.md).
+  - q1_ortg_drtg_vs_wl.png          / q1_ortg_drtg_vs_wl_en.png          (Ερώτημα 1)
+  - q2_home_away_3pct.png           / q2_home_away_3pct_en.png           (Ερώτημα 2)
+  - q3_opponent_strength_3pct.png   / q3_opponent_strength_3pct_en.png   (Ερώτημα 3)
 
 Τα p-values στους τίτλους υπολογίζονται εδώ, με τον ίδιο τρόπο όπως στο
 analyze_game_level.py, ώστε γραφήματα και αποτελέσματα να συμφωνούν πάντα.
@@ -31,8 +32,37 @@ RED = "#c8102e"
 GREEN = "#5a9e3a"
 ORANGE = "#eba73c"
 
+# Τιμές όπως είναι γραμμένες στο NBA_gamelevel_live.csv
 HOME, AWAY = "Εντός Έδρας", "Εκτός Έδρας"
 STRENGTH_ORDER = ["Αδύναμη", "Μεσαία", "Κορυφαία"]
+
+# Κείμενα των γραφημάτων ανά γλώσσα (suffix = κατάληξη στο όνομα αρχείου)
+TEXT = {
+    "el": {
+        "suffix": "",
+        "q1_title": "Ερώτημα 1: ORtg & DRtg vs Ποσοστό Νικών (W/L%)",
+        "ortg": "Επιθετική Απόδοση (ORtg)",
+        "drtg": "Αμυντική Απόδοση (DRtg)",
+        "q2_title": "Ερώτημα 2: 3P% Εντός vs Εκτός Έδρας",
+        "home": "Εντός Έδρας",
+        "away": "Εκτός Έδρας",
+        "q3_title": "Ερώτημα 3: 3P% ανά Δύναμη Αντιπάλου",
+        "q3_xlabel": "Δύναμη Αντιπάλου (βάσει τελικού W/L%)",
+        "strength": {"Αδύναμη": "Αδύναμη", "Μεσαία": "Μεσαία", "Κορυφαία": "Κορυφαία"},
+    },
+    "en": {
+        "suffix": "_en",
+        "q1_title": "Question 1: ORtg & DRtg vs Win Percentage (W/L%)",
+        "ortg": "Offensive Rating (ORtg)",
+        "drtg": "Defensive Rating (DRtg)",
+        "q2_title": "Question 2: 3P% Home vs Away",
+        "home": "Home",
+        "away": "Away",
+        "q3_title": "Question 3: 3P% by Opponent Strength",
+        "q3_xlabel": "Opponent Strength (based on final W/L%)",
+        "strength": {"Αδύναμη": "Weak", "Μεσαία": "Average", "Κορυφαία": "Strong"},
+    },
+}
 
 
 def load_csv(path: str, made_by: str) -> pd.DataFrame:
@@ -75,11 +105,11 @@ def draw_boxplot(ax, groups, labels, colors) -> None:
     style_axes(ax)
 
 
-def plot_q1(team_stats: pd.DataFrame) -> None:
+def plot_q1(team_stats: pd.DataFrame, t: dict) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
     panels = [
-        ("ORtg", "Επιθετική Απόδοση (ORtg)", BLUE),
-        ("DRtg", "Αμυντική Απόδοση (DRtg)", RED),
+        ("ORtg", t["ortg"], BLUE),
+        ("DRtg", t["drtg"], RED),
     ]
     for ax, (col, xlabel, color) in zip(axes, panels):
         x, y = team_stats[col], team_stats["W/L%"]
@@ -94,14 +124,13 @@ def plot_q1(team_stats: pd.DataFrame) -> None:
         ax.set_ylabel("W/L%")
         style_axes(ax)
 
-    fig.suptitle("Ερώτημα 1: ORtg & DRtg vs Ποσοστό Νικών (W/L%)",
-                 fontweight="bold", fontsize=14)
+    fig.suptitle(t["q1_title"], fontweight="bold", fontsize=14)
     fig.tight_layout()
-    fig.savefig("q1_ortg_drtg_vs_wl.png", dpi=150)
+    fig.savefig(f"q1_ortg_drtg_vs_wl{t['suffix']}.png", dpi=150)
     plt.close(fig)
 
 
-def plot_q2(games: pd.DataFrame) -> None:
+def plot_q2(games: pd.DataFrame, t: dict) -> None:
     home = games.loc[games["home_away"] == HOME, "FG3_PCT"]
     away = games.loc[games["home_away"] == AWAY, "FG3_PCT"]
 
@@ -109,27 +138,28 @@ def plot_q2(games: pd.DataFrame) -> None:
     ttest = stats.ttest_ind(home, away, equal_var=(levene.pvalue > 0.05))
 
     fig, ax = plt.subplots(figsize=(6, 5))
-    draw_boxplot(ax, [home, away], [HOME, AWAY], [BLUE, RED])
-    ax.set_title(f"Ερώτημα 2: 3P% Εντός vs Εκτός Έδρας\n"
+    draw_boxplot(ax, [home, away], [t["home"], t["away"]], [BLUE, RED])
+    ax.set_title(f"{t['q2_title']}\n"
                  f"(t-test, p = {ttest.pvalue:.3f})", fontweight="bold")
     fig.tight_layout()
-    fig.savefig("q2_home_away_3pct.png", dpi=150)
+    fig.savefig(f"q2_home_away_3pct{t['suffix']}.png", dpi=150)
     plt.close(fig)
 
 
-def plot_q3(games: pd.DataFrame) -> None:
+def plot_q3(games: pd.DataFrame, t: dict) -> None:
     present = [s for s in STRENGTH_ORDER if s in set(games["opponent_strength"])]
     groups = [games.loc[games["opponent_strength"] == s, "FG3_PCT"] for s in present]
     anova = stats.f_oneway(*groups)
 
     colors = dict(zip(STRENGTH_ORDER, [GREEN, ORANGE, RED]))
     fig, ax = plt.subplots(figsize=(7, 5))
-    draw_boxplot(ax, groups, present, [colors[s] for s in present])
-    ax.set_xlabel("Δύναμη Αντιπάλου (βάσει τελικού W/L%)")
-    ax.set_title(f"Ερώτημα 3: 3P% ανά Δύναμη Αντιπάλου\n"
+    labels = [t["strength"][s] for s in present]
+    draw_boxplot(ax, groups, labels, [colors[s] for s in present])
+    ax.set_xlabel(t["q3_xlabel"])
+    ax.set_title(f"{t['q3_title']}\n"
                  f"(ANOVA, p = {anova.pvalue:.3f})", fontweight="bold")
     fig.tight_layout()
-    fig.savefig("q3_opponent_strength_3pct.png", dpi=150)
+    fig.savefig(f"q3_opponent_strength_3pct{t['suffix']}.png", dpi=150)
     plt.close(fig)
 
 
@@ -137,11 +167,12 @@ def main() -> None:
     team_stats = load_csv(TEAM_STATS_FILE, "fetch_nba_data.py")
     games = load_csv(GAME_LEVEL_FILE, "analyze_game_level.py")
 
-    plot_q1(team_stats)
-    plot_q2(games)
-    plot_q3(games)
-    print("Έτοιμο! Αποθηκεύτηκαν τα q1_ortg_drtg_vs_wl.png, "
-          "q2_home_away_3pct.png και q3_opponent_strength_3pct.png")
+    for t in TEXT.values():
+        plot_q1(team_stats, t)
+        plot_q2(games, t)
+        plot_q3(games, t)
+    print("Έτοιμο! Αποθηκεύτηκαν τα γραφήματα στα ελληνικά (q1/q2/q3_*.png)")
+    print("και στα αγγλικά (q1/q2/q3_*_en.png).")
 
 
 if __name__ == "__main__":
