@@ -26,9 +26,9 @@ The results below are for the **2025-26 season** (full regular season). Reproduc
 | 2. Home vs Away | Statistically significant difference (t-test, p = 0.023) — slightly better 3P% at home (36.2% vs 35.5%) |
 | 3. Opponent strength | Statistically significant difference (ANOVA, p = 0.038) — better 3P% against weaker opponents |
 
-![ORtg & DRtg vs W/L%](q1_ortg_drtg_vs_wl.png)
-![3P% Home vs Away](q2_home_away_3pct.png)
-![3P% by Opponent Strength](q3_opponent_strength_3pct.png)
+![ORtg & DRtg vs W/L%](q1_ortg_drtg_vs_wl_en.png)
+![3P% Home vs Away](q2_home_away_3pct_en.png)
+![3P% by Opponent Strength](q3_opponent_strength_3pct_en.png)
 
 ## Project Structure
 
