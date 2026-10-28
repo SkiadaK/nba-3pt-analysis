@@ -18,6 +18,8 @@ Started as a coursework project for a Statistics course (University of Crete) an
 
 ## Findings
 
+The results below are for the **2025-26 season** (full regular season). Reproduce them with `--season 2025-26` (see "How to run").
+
 | Question | Result |
 |---|---|
 | 1. Key performance drivers | Backward elimination on the live data narrows it down to **ORtg**, **DRtg**, and **TS%** (p < 0.05, R² = 0.95) |
@@ -34,6 +36,7 @@ Started as a coursework project for a Statistics course (University of Crete) an
 fetch_nba_data.py        # Pulls season-level team stats (ORtg, DRtg, Pace, 3PAr, 3P%, TS%)
 analyze_regression.py    # Live regression + backward elimination for Question 1
 analyze_game_level.py    # Pulls per-game data and runs Questions 2 & 3
+nba_season.py            # Shared season logic (--season, warning when too few games)
 make_plots.py            # Builds the three charts (q1_*.png, q2_*.png, q3_*.png)
 NBAstats_live.csv        # Output of fetch_nba_data.py
 NBA_gamelevel_live.csv   # Output of analyze_game_level.py
@@ -44,13 +47,19 @@ NBA_gamelevel_live.csv   # Output of analyze_game_level.py
 ```bash
 pip install nba_api pandas scipy statsmodels matplotlib
 
-python fetch_nba_data.py        # Run this first
+python fetch_nba_data.py        # Run this first (current season, live)
 python analyze_regression.py    # Question 1
 python analyze_game_level.py    # Questions 2 & 3
 python make_plots.py            # Charts
 ```
 
-The current NBA season is calculated automatically based on today's date — no manual configuration needed.
+By default the pipeline pulls **live** data for the current season, which is calculated automatically from today's date. To use a specific season (e.g. to reproduce the findings above):
+
+```bash
+python fetch_nba_data.py --season 2025-26
+```
+
+The `analyze_*.py` scripts read the season from the CSV, so they automatically run on the same season. If the season has only just started (fewer than 20 games per team), the scripts print a warning that the results are not yet reliable.
 
 ## Methodological Notes & Limitations
 

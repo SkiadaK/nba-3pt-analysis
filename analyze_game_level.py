@@ -21,6 +21,9 @@ fetch_nba_data.py) για να κατηγοριοποιήσει τους αντ�
 Εκτέλεση (ΑΦΟΥ έχεις ήδη τρέξει το fetch_nba_data.py, ώστε να υπάρχει το
 NBAstats_live.csv στον ίδιο φάκελο):
     python analyze_game_level.py
+
+Η σεζόν διαβάζεται από τη στήλη Season του NBAstats_live.csv, ώστε η
+κατηγοριοποίηση δύναμης και τα game logs να αφορούν πάντα την ίδια σεζόν.
 """
 
 import sys
@@ -28,34 +31,19 @@ import pandas as pd
 from scipy import stats
 from nba_api.stats.endpoints import leaguegamefinder
 
-from datetime import date
+from nba_season import current_nba_season, warn_if_few_games
 
-
-def current_nba_season() -> str:
-    """Υπολογίζει αυτόματα την τρέχουσα σεζόν NBA με βάση τη σημερινή
-    ημερομηνία. Η σεζόν NBA ξεκινά τον Οκτώβριο: π.χ. αν είμαστε
-    Νοέμβριος 2026, η σεζόν είναι "2026-27". Αν είμαστε πριν τον Οκτώβριο
-    (π.χ. Ιούνιος 2026), θεωρούμε ότι τρέχει ακόμα η προηγούμενη σεζόν
-    "2025-26"."""
-    today = date.today()
-    if today.month >= 10:
-        start_year = today.year
-    else:
-        start_year = today.year - 1
-    end_year_short = str(start_year + 1)[-2:]
-    return f"{start_year}-{end_year_short}"
-
-SEASON = current_nba_season()  # υπολογίζεται αυτόματα
 SEASON_TYPE = "Regular Season"
 TEAM_STATS_FILE = "NBAstats_live.csv"
 
 
-def fetch_game_logs() -> pd.DataFrame:
+def fetch_game_logs(season: str) -> pd.DataFrame:
     response = leaguegamefinder.LeagueGameFinder(
-        season_nullable=SEASON,
+        season_nullable=season,
         season_type_nullable=SEASON_TYPE,
         league_id_nullable="00",
         player_or_team_abbreviation="T",
+        timeout=60,
     )
     return response.get_data_frames()[0]
 
@@ -69,6 +57,13 @@ def main() -> None:
         print("Τρέξε πρώτα το fetch_nba_data.py, και μετά ξανατρέξε αυτό.")
         sys.exit(1)
 
+    # Ίδια σεζόν με το CSV (παλιά CSV χωρίς στήλη Season → τρέχουσα σεζόν)
+    if "Season" in team_stats.columns:
+        season = team_stats["Season"].iloc[0]
+    else:
+        season = current_nba_season()
+    print(f"Σεζόν: {season}")
+
     team_stats["strength"] = pd.qcut(
         team_stats["W/L%"], q=3, labels=["Αδύναμη", "Μεσαία", "Κορυφαία"]
     )
@@ -77,13 +72,13 @@ def main() -> None:
     # 2. Τράβα τα game logs (κάθε ομάδα - κάθε αγώνας)
     print("Τραβάω game logs (μπορεί να πάρει λίγα δευτερόλεπτα)...")
     try:
-        games = fetch_game_logs()
+        games = fetch_game_logs(season)
     except Exception as exc:  # noqa: BLE001
         print("Αποτυχία κλήσης στο NBA API:", exc)
         sys.exit(1)
 
-    print("Στήλες που επέστρεψε το API:", list(games.columns))
-    print(f"Συνολικές γραμμές (ομάδα-αγώνας): {len(games)}\n")
+    print(f"Συνολικές γραμμές (ομάδα-αγώνας): {len(games)}")
+    warn_if_few_games(games.groupby("TEAM_ID").size().median(), season)
 
     games = games[games["FG3A"] > 0].copy()  # αποφυγή διαίρεσης με το μηδέν
 

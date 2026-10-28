@@ -14,11 +14,15 @@ analyze_regression.py
 
 Εκτέλεση (ΑΦΟΥ έχεις ήδη τρέξει το fetch_nba_data.py):
     python analyze_regression.py
+
+Η σεζόν είναι αυτή που κατέβασε το fetch_nba_data.py (στήλη Season του CSV).
 """
 
 import sys
 import pandas as pd
 import statsmodels.api as sm
+
+from nba_season import warn_if_few_games
 
 TEAM_STATS_FILE = "NBAstats_live.csv"
 CANDIDATE_VARS = ["ORtg", "DRtg", "Pace", "3PAr", "3P%", "TS%"]
@@ -32,6 +36,10 @@ def main() -> None:
         print(f"Δεν βρέθηκε το {TEAM_STATS_FILE} σε αυτόν τον φάκελο.")
         print("Τρέξε πρώτα το fetch_nba_data.py, και μετά ξανατρέξε αυτό.")
         sys.exit(1)
+
+    season = df["Season"].iloc[0] if "Season" in df.columns else "άγνωστη"
+    print(f"Σεζόν: {season}")
+    warn_if_few_games((df["W"] + df["L"]).median(), season)
 
     y = df["W/L%"]
     predictors = CANDIDATE_VARS.copy()

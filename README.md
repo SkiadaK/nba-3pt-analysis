@@ -18,6 +18,8 @@
 
 ## Ευρήματα
 
+Τα παρακάτω αποτελέσματα αφορούν τη **σεζόν 2025-26** (πλήρης κανονική περίοδος). Αναπαράγονται με `--season 2025-26` (δες «Πώς τρέχει»).
+
 | Ερώτημα | Αποτέλεσμα |
 |---|---|
 | 1. Βασικοί παράγοντες απόδοσης | Backward elimination στα ζωντανά δεδομένα καταλήγει σε **ORtg**, **DRtg** και **TS%** (p < 0.05, R² = 0.95) |
@@ -34,6 +36,7 @@
 fetch_nba_data.py        # Τραβάει season-level στατιστικά ομάδων (ORtg, DRtg, Pace, 3PAr, 3P%, TS%)
 analyze_regression.py    # Live regression + backward elimination για το Ερώτημα 1
 analyze_game_level.py    # Τραβάει per-game δεδομένα και τρέχει τα Ερωτήματα 2 & 3
+nba_season.py            # Κοινή λογική σεζόν (--season, προειδοποίηση για λίγους αγώνες)
 make_plots.py            # Φτιάχνει τα τρία γραφήματα (q1_*.png, q2_*.png, q3_*.png)
 NBAstats_live.csv        # Output του fetch_nba_data.py
 NBA_gamelevel_live.csv   # Output του analyze_game_level.py
@@ -44,13 +47,19 @@ NBA_gamelevel_live.csv   # Output του analyze_game_level.py
 ```bash
 pip install nba_api pandas scipy statsmodels matplotlib
 
-python fetch_nba_data.py        # Πρώτα αυτό
+python fetch_nba_data.py        # Πρώτα αυτό (τρέχουσα σεζόν, live)
 python analyze_regression.py    # Ερώτημα 1
 python analyze_game_level.py    # Ερωτήματα 2 & 3
 python make_plots.py            # Γραφήματα
 ```
 
-Η τρέχουσα σεζόν NBA υπολογίζεται αυτόματα βάσει σημερινής ημερομηνίας — δεν χρειάζεται καμία χειροκίνητη ρύθμιση.
+Από προεπιλογή το pipeline τραβάει **live** δεδομένα της τρέχουσας σεζόν, η οποία υπολογίζεται αυτόματα βάσει σημερινής ημερομηνίας. Για συγκεκριμένη σεζόν (π.χ. για να αναπαράγεις τα ευρήματα παραπάνω):
+
+```bash
+python fetch_nba_data.py --season 2025-26
+```
+
+Τα `analyze_*.py` διαβάζουν τη σεζόν από το CSV, οπότε τρέχουν αυτόματα στην ίδια σεζόν. Αν η σεζόν μόλις ξεκίνησε (λιγότεροι από 20 αγώνες ανά ομάδα), τα scripts εμφανίζουν προειδοποίηση ότι τα αποτελέσματα δεν είναι ακόμα αξιόπιστα.
 
 ## Μεθοδολογικές Σημειώσεις & Περιορισμοί
 

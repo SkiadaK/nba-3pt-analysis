@@ -10,52 +10,41 @@ W/L%, ORtg, DRtg, Pace, TS%, 3PAr, 3P%.
     pip install nba_api pandas
 
 Εκτέλεση:
-    python fetch_nba_data.py
+    python fetch_nba_data.py                    # τρέχουσα σεζόν (live)
+    python fetch_nba_data.py --season 2025-26   # συγκεκριμένη σεζόν
+
+Τα analyze_*.py διαβάζουν τη σεζόν από το CSV, οπότε τρέχουν πάντα
+στην ίδια σεζόν με αυτό το script.
 """
 
 import sys
 import pandas as pd
 from nba_api.stats.endpoints import leaguedashteamstats
 
-from datetime import date
+from nba_season import season_from_args, warn_if_few_games
 
-
-def current_nba_season() -> str:
-    """Υπολογίζει αυτόματα την τρέχουσα σεζόν NBA με βάση τη σημερινή
-    ημερομηνία. Η σεζόν NBA ξεκινά τον Οκτώβριο: π.χ. αν είμαστε
-    Νοέμβριος 2026, η σεζόν είναι "2026-27". Αν είμαστε πριν τον Οκτώβριο
-    (π.χ. Ιούνιος 2026), θεωρούμε ότι τρέχει ακόμα η προηγούμενη σεζόν
-    "2025-26"."""
-    today = date.today()
-    if today.month >= 10:
-        start_year = today.year
-    else:
-        start_year = today.year - 1
-    end_year_short = str(start_year + 1)[-2:]
-    return f"{start_year}-{end_year_short}"
-
-# Άλλαξε τη σεζόν αν θες προηγούμενη (π.χ. "2023-24")
-SEASON = current_nba_season()  # υπολογίζεται αυτόματα
 SEASON_TYPE = "Regular Season"
 
 
-def fetch_team_measure(measure_type: str) -> pd.DataFrame:
+def fetch_team_measure(season: str, measure_type: str) -> pd.DataFrame:
     """Τραβάει πίνακα στατιστικών ομάδων (Base ή Advanced) από το nba_api."""
     response = leaguedashteamstats.LeagueDashTeamStats(
-        season=SEASON,
+        season=season,
         season_type_all_star=SEASON_TYPE,
         measure_type_detailed_defense=measure_type,
         per_mode_detailed="PerGame",
+        timeout=60,
     )
     return response.get_data_frames()[0]
 
 
 def main() -> None:
-    print(f"Τραβάω δεδομένα για τη σεζόν {SEASON}...")
+    season = season_from_args("Τραβάει season-level στατιστικά ομάδων NBA.")
+    print(f"Τραβάω δεδομένα για τη σεζόν {season}...")
 
     try:
-        base_raw = fetch_team_measure("Base")
-        advanced_raw = fetch_team_measure("Advanced")
+        base_raw = fetch_team_measure(season, "Base")
+        advanced_raw = fetch_team_measure(season, "Advanced")
     except Exception as exc:  # noqa: BLE001
         print("Αποτυχία κλήσης στο NBA API:", exc)
         print("Πιθανές αιτίες: δεν έχει ξεκινήσει ακόμα η σεζόν, πρόβλημα δικτύου,")
@@ -80,13 +69,16 @@ def main() -> None:
         "PACE": "Pace",
     })
 
-    df = df[["Team", "W", "L", "W/L%", "PTS", "ORtg", "DRtg", "Pace", "3PAr", "3P%", "TS%"]]
+    df.insert(0, "Season", season)
+    df = df[["Season", "Team", "W", "L", "W/L%", "PTS", "ORtg", "DRtg", "Pace", "3PAr", "3P%", "TS%"]]
     df = df.sort_values("W/L%", ascending=False).reset_index(drop=True)
 
     out_path = "NBAstats_live.csv"
     df.to_csv(out_path, index=False)
     print(f"\nΈτοιμο! Αποθηκεύτηκαν {len(df)} ομάδες στο {out_path}")
     print(df.head())
+
+    warn_if_few_games((df["W"] + df["L"]).median(), season)
 
 
 if __name__ == "__main__":
